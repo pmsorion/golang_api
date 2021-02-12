@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 type GDGMember struct {
@@ -28,14 +30,36 @@ func returnAllMembers(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(Members)
 }
 
-func handleRequests() {
-	http.HandleFunc("/", homePage)
-	http.HandleFunc("/members", returnAllMembers)
+func returnMember(w http.ResponseWriter, r *http.Request) {
+	values := mux.Vars(r)
+	key := values["name"]
 
-	log.Fatal(http.ListenAndServe(":3000", nil))
+	//fmt.Fprintf(w, "Name: "+key)
+
+	for _, member := range Members {
+		if member.Name == key {
+			json.NewEncoder(w).Encode(member)
+		}
+	}
+}
+
+func handleRequests() {
+
+	// We define our main router
+	mainRouter := mux.NewRouter().StrictSlash(true)
+
+	// Routes definition
+	mainRouter.HandleFunc("/", homePage)
+	mainRouter.HandleFunc("/members", returnAllMembers)
+	mainRouter.HandleFunc("/member/{name}", returnMember)
+
+	// Log and definition port
+	log.Fatal(http.ListenAndServe(":3000", mainRouter))
 }
 
 func main() {
+
+	// We define our JSON
 	Members = []GDGMember{
 		GDGMember{
 			ID:       1,
@@ -78,5 +102,7 @@ func main() {
 			City:     "Cancún",
 		},
 	}
+
+	// We start our server
 	handleRequests()
 }
