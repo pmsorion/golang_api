@@ -7,36 +7,76 @@ import (
 	"net/http"
 )
 
-type Article struct {
-	ID      int    `json:"ID"`
-	Title   string `json:"Title"`
-	Desc    string `json:"desc"`
-	Content string `json:"content"`
+type GDGMember struct {
+	ID       int    `json:"ID"`
+	Name     string `json:"name"`
+	LastName string `json:"lastname"`
+	Role     string `json:"role"`
+	Country  string `json:"country"`
+	City     string `json:"city"`
 }
 
-var Articles []Article
+var Members []GDGMember
 
 func homePage(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Welcome to the HomePage!")
+	fmt.Fprintf(w, "Welcome to GDG Puerto Morelos!")
 	fmt.Println("Endpoint Hit: homePage")
 }
 
-func returnAllArticles(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Endpint hint: returnAllArticles")
-	json.NewEncoder(w).Encode(Articles)
+func returnAllMembers(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Endpint hint: returnAllMembers")
+	json.NewEncoder(w).Encode(Members)
 }
 
 func handleRequests() {
 	http.HandleFunc("/", homePage)
-	http.HandleFunc("/articles", returnAllArticles)
+	http.HandleFunc("/members", returnAllMembers)
 
 	log.Fatal(http.ListenAndServe(":3000", nil))
 }
 
 func main() {
-	Articles = []Article{
-		Article{ID: 1, Title: "Introduction", Desc: "Introduction session", Content: "Introduction chapter"},
-		Article{ID: 2, Title: "Introduction", Desc: "Introduction session", Content: "Introduction chapter"},
+	Members = []GDGMember{
+		GDGMember{
+			ID:       1,
+			Name:     "Rafael",
+			LastName: "Lagunas",
+			Role:     "Lead & Organizer",
+			Country:  "México",
+			City:     "Puerto Morelos",
+		},
+		GDGMember{
+			ID:       2,
+			Name:     "Ismael",
+			LastName: "Jiménez",
+			Role:     "Co-Organizer & Co-lead",
+			Country:  "México",
+			City:     "Cancún",
+		},
+		GDGMember{
+			ID:       3,
+			Name:     "Henry",
+			LastName: "Raygan",
+			Role:     "Community Lead jr",
+			Country:  "México",
+			City:     "Cancún",
+		},
+		GDGMember{
+			ID:       4,
+			Name:     "Ellerick",
+			LastName: "Esquivel",
+			Role:     "Community Champion & official streamer",
+			Country:  "México",
+			City:     "Querétaro",
+		},
+		GDGMember{
+			ID:       5,
+			Name:     "José",
+			LastName: "González",
+			Role:     "Specialist - React",
+			Country:  "México",
+			City:     "Cancún",
+		},
 	}
 	handleRequests()
 }
