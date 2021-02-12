@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 
@@ -10,7 +11,7 @@ import (
 )
 
 type GDGMember struct {
-	ID       int    `json:"ID"`
+	ID       string `json:"ID"`
 	Name     string `json:"name"`
 	LastName string `json:"lastname"`
 	Role     string `json:"role"`
@@ -24,23 +25,28 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Welcome to GDG Puerto Morelos!")
 	fmt.Println("Endpoint Hit: homePage")
 }
-
 func returnAllMembers(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Endpint hint: returnAllMembers")
 	json.NewEncoder(w).Encode(Members)
 }
-
 func returnMember(w http.ResponseWriter, r *http.Request) {
 	values := mux.Vars(r)
 	key := values["name"]
-
 	//fmt.Fprintf(w, "Name: "+key)
-
 	for _, member := range Members {
 		if member.Name == key {
 			json.NewEncoder(w).Encode(member)
 		}
 	}
+}
+func createMember(w http.ResponseWriter, r *http.Request) {
+	reqBody, _ := ioutil.ReadAll(r.Body)
+	var member GDGMember
+	json.Unmarshal(reqBody, &member)
+	Members = append(Members, member)
+	json.NewEncoder(w).Encode(member)
+
+	//fmt.Fprintf(w, "%v", string(reqBody))
 }
 
 func handleRequests() {
@@ -52,6 +58,7 @@ func handleRequests() {
 	mainRouter.HandleFunc("/", homePage)
 	mainRouter.HandleFunc("/members", returnAllMembers)
 	mainRouter.HandleFunc("/member/{name}", returnMember)
+	mainRouter.HandleFunc(("/member"), createMember).Methods(("POST"))
 
 	// Log and definition port
 	log.Fatal(http.ListenAndServe(":3000", mainRouter))
@@ -62,7 +69,7 @@ func main() {
 	// We define our JSON
 	Members = []GDGMember{
 		GDGMember{
-			ID:       1,
+			ID:       "1",
 			Name:     "Rafael",
 			LastName: "Lagunas",
 			Role:     "Lead & Organizer",
@@ -70,7 +77,7 @@ func main() {
 			City:     "Puerto Morelos",
 		},
 		GDGMember{
-			ID:       2,
+			ID:       "2",
 			Name:     "Ismael",
 			LastName: "Jiménez",
 			Role:     "Co-Organizer & Co-lead",
@@ -78,7 +85,7 @@ func main() {
 			City:     "Cancún",
 		},
 		GDGMember{
-			ID:       3,
+			ID:       "3",
 			Name:     "Henry",
 			LastName: "Raygan",
 			Role:     "Community Lead jr",
@@ -86,7 +93,7 @@ func main() {
 			City:     "Cancún",
 		},
 		GDGMember{
-			ID:       4,
+			ID:       "4",
 			Name:     "Ellerick",
 			LastName: "Esquivel",
 			Role:     "Community Champion & official streamer",
@@ -94,7 +101,7 @@ func main() {
 			City:     "Querétaro",
 		},
 		GDGMember{
-			ID:       5,
+			ID:       "5",
 			Name:     "José",
 			LastName: "González",
 			Role:     "Specialist - React",
