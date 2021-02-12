@@ -30,8 +30,8 @@ func returnAllMembers(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(Members)
 }
 func returnMember(w http.ResponseWriter, r *http.Request) {
-	values := mux.Vars(r)
-	key := values["name"]
+	params := mux.Vars(r)
+	key := params["name"]
 	//fmt.Fprintf(w, "Name: "+key)
 	for _, member := range Members {
 		if member.Name == key {
@@ -45,8 +45,23 @@ func createMember(w http.ResponseWriter, r *http.Request) {
 	json.Unmarshal(reqBody, &member)
 	Members = append(Members, member)
 	json.NewEncoder(w).Encode(member)
-
 	//fmt.Fprintf(w, "%v", string(reqBody))
+}
+
+func deleteMember(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	//fmt.Fprintf(w, "%v", id)
+	for index, member := range Members {
+		fmt.Fprintf(w, "%v", string(index))
+
+		if member.ID == id {
+			Members = append(Members[:index], Members[index+1:]...)
+			json.NewEncoder(w).Encode(Members)
+
+		}
+	}
+
 }
 
 func handleRequests() {
@@ -57,8 +72,9 @@ func handleRequests() {
 	// Routes definition
 	mainRouter.HandleFunc("/", homePage)
 	mainRouter.HandleFunc("/members", returnAllMembers)
-	mainRouter.HandleFunc("/member/{name}", returnMember)
-	mainRouter.HandleFunc(("/member"), createMember).Methods(("POST"))
+	mainRouter.HandleFunc("/member/{name}", returnMember).Methods("GET")
+	mainRouter.HandleFunc("/member/{id}", deleteMember).Methods("DELETE")
+	mainRouter.HandleFunc("/member", createMember).Methods(("POST"))
 
 	// Log and definition port
 	log.Fatal(http.ListenAndServe(":3000", mainRouter))
